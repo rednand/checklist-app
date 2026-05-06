@@ -1,0 +1,121 @@
+import { createClient } from "../../../utils/supabase/server"
+import { notFound } from "next/navigation"
+import { deleteChecklist } from "../../../actions/checklists"
+import ToggleItem from "./toggle-item"
+import AddItemForm from "./add-item-form"
+import { Trash2 } from "lucide-react"
+
+const categoryColors = [
+  "bg-blue-50 text-blue-700",
+  "bg-violet-50 text-violet-700",
+  "bg-teal-50 text-teal-700",
+  "bg-orange-50 text-orange-700",
+  "bg-pink-50 text-pink-700",
+  "bg-green-50 text-green-700",
+  "bg-amber-50 text-amber-700",
+  "bg-cyan-50 text-cyan-700",
+]
+
+export default async function ChecklistPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+
+  const { data: checklist } = await supabase
+    .from("checklists")
+    .select("*")
+    .eq("id", id)
+    .eq("user_id", user!.id)
+    .single()
+
+  if (!checklist) notFound()
+
+  const { data: items } = await supabase
+    .from("checklist_items")
+    .select("*")
+    .eq("checklist_id", checklist.id)
+    .order("position")
+
+  const allItems = items ?? []
+  const categories = [...new Set(allItems.map(i => i.category).filter(Boolean))] as string[]
+  const uncategorized = allItems.filter(i => !i.category)
+  const checkedCount = allItems.filter(i => i.checked).length
+  const progress = allItems.length > 0 ? (checkedCount / allItems.length) * 100 : 0
+  const isComplete = allItems.length > 0 && checkedCount === allItems.length
+
+  return (
+    <div className="max-w-3xl">
+      {/* Header */}
+      <div className="flex items-start justify-between mb-1">
+        <div className="min-w-0 pr-4">
+          <h1 className="text-2xl font-bold text-slate-900">{checklist.title}</h1>
+          <p className="text-slate-400 text-sm mt-0.5">{checklist.prompt}</p>
+        </div>
+        <form action={deleteChecklist.bind(null, checklist.id)}>
+          <button type="submit" className="text-slate-300 hover:text-red-500 transition-colors mt-1 p-1 rounded-lg hover:bg-red-50" title="Excluir">
+            <Trash2 size={15} />
+          </button>
+        </form>
+      </div>
+
+      {/* Progress */}
+      <div className="mt-5 mb-8">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-medium text-slate-500">
+            {isComplete ? "✅ Concluído!" : `${checkedCount} de ${allItems.length} itens`}
+          </span>
+          <span className="text-xs font-bold text-blue-600">{Math.round(progress)}%</span>
+        </div>
+        <div className="h-2 bg-slate-100 rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full transition-all duration-500 ${isComplete ? "bg-green-500" : "bg-gradient-to-r from-blue-500 to-indigo-500"}`}
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+      </div>
+
+      {/* Items */}
+      <div className="space-y-6">
+        {categories.map((category, index) => (
+          <div key={category}>
+            <div className="flex items-center gap-2 mb-2">
+              <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${categoryColors[index % categoryColors.length]}`}>
+                {category}
+              </span>
+              <span className="text-xs text-slate-400">
+                {allItems.filter(i => i.category === category && i.checked).length}/{allItems.filter(i => i.category === category).length}
+              </span>
+            </div>
+            <div className="space-y-0.5">
+              {allItems.filter(i => i.category === category).map(item => (
+                <ToggleItem key={item.id} item={{ ...item, checklist_id: checklist.id }} />
+              ))}
+            </div>
+          </div>
+        ))}
+
+        {uncategorized.length > 0 && (
+          <div>
+            {categories.length > 0 && (
+              <div className="flex items-center gap-2 mb-2">
+                <span className="text-xs font-bold px-2.5 py-1 rounded-full bg-slate-100 text-slate-600">
+                  Outros
+                </span>
+              </div>
+            )}
+            <div className="space-y-0.5">
+              {uncategorized.map(item => (
+                <ToggleItem key={item.id} item={{ ...item, checklist_id: checklist.id }} />
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Add item */}
+      <div className="mt-8 pt-5 border-t border-slate-100">
+        <AddItemForm checklistId={checklist.id} categories={categories} />
+      </div>
+    </div>
+  )
+}

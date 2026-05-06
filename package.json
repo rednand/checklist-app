@@ -1,5 +1,5 @@
 {
-  "name": "english-notes-saas",
+  "name": "checklist-app",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -11,10 +11,14 @@
   "dependencies": {
     "@supabase/ssr": "^0.10.2",
     "@supabase/supabase-js": "^2.105.1",
+    "groq-sdk": "^1.1.2",
     "lucide-react": "^1.14.0",
     "next": "16.2.4",
+    "pdfjs-dist": "^5.7.284",
     "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "react-dom": "19.2.4",
+    "sonner": "^2.0.7",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
