@@ -43,3 +43,5 @@ next-env.d.ts
 
 /.claude/
 /.copilot/
+AGENTS.md
+CLAUDE.md
