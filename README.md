@@ -1,26 +1,16 @@
-# Highlight
+# Checklist App
 
-**Transforme suas aulas de inglês em vocabulário que você realmente aprende.**
+**Gere checklists completos com inteligência artificial.**
 
-Highlight é um app para estudantes de inglês anotarem palavras e expressões das aulas, revisarem com flashcards inteligentes e acompanharem o progresso em uma trilha estruturada de aprendizado.
-
-## Por que Highlight?
-
-A maioria dos estudantes anota vocabulário e nunca revisa. Highlight resolve isso combinando anotação rápida com revisão espaçada (SM-2) — o mesmo algoritmo usado pelo Anki, direto no browser.
+Digite qualquer tema — "viagem internacional", "lançar produto", "mudar de apartamento" — e o app gera automaticamente um checklist organizado por categorias.
 
 ## Principais recursos
 
-- Registre aulas e adicione vocabulário com tradução, fonética e exemplos de uso automáticos
-- Extraia palavras incomuns de qualquer texto em inglês com um clique
-- Revise com flashcards usando o algoritmo SM-2, filtrando por aula
-- Acompanhe seu progresso em um roadmap estruturado (Basic → Intermediate → Advanced)
-- Ouça a pronúncia e grave palavras pelo microfone
-- Funciona como app no celular (PWA)
+- Geração automática de checklists via IA
+- Itens organizados por categorias
+- Marque itens como concluídos
+- Histórico de checklists gerados
 
 ## Tecnologia
 
-Next.js · Supabase · Tailwind CSS
-
----
-
-© Highlight
+Next.js · Supabase · Tailwind CSS · Claude API

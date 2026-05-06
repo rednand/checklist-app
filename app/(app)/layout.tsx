@@ -2,10 +2,9 @@ import { createClient } from "../utils/supabase/server"
 import { redirect } from "next/navigation"
 import { signOut } from "../actions/lessons"
 import Link from "next/link"
-import { LayoutDashboard, BookOpen, RotateCcw, Map } from "lucide-react"
+import { LayoutDashboard, ListChecks } from "lucide-react"
 import NavLink from "./nav-link"
 import MobileNav from "./mobile-nav"
-import PushToggle from "./push-toggle"
 import { Toaster } from "sonner"
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
@@ -21,16 +20,14 @@ export default async function AppLayout({ children }: { children: React.ReactNod
       <aside className="hidden md:flex w-56 border-r border-white/5 flex-col shrink-0">
         <div className="px-5 py-5 border-b border-white/5">
           <div className="flex items-center gap-2">
-            <img src="/icon.svg" alt="Highlight" className="w-6 h-6 rounded" />
-            <span className="font-bold tracking-tight">Highlight</span>
+            <img src="/icon.svg" alt="Checklist App" className="w-6 h-6 rounded" />
+            <span className="font-bold tracking-tight">Checklist App</span>
           </div>
         </div>
 
         <nav className="flex-1 p-3 space-y-0.5">
           <NavLink href="/" icon={<LayoutDashboard size={16} />} label="Início" exact />
-          <NavLink href="/lessons" icon={<BookOpen size={16} />} label="Aulas" />
-          <NavLink href="/review" icon={<RotateCcw size={16} />} label="Revisar" />
-          <NavLink href="/roadmap" icon={<Map size={16} />} label="Trilha" />
+          <NavLink href="/checklists" icon={<ListChecks size={16} />} label="Checklists" />
         </nav>
 
         <div className="p-4 border-t border-white/5">
@@ -40,14 +37,11 @@ export default async function AppLayout({ children }: { children: React.ReactNod
             </div>
             <p className="text-xs text-gray-500 truncate">{user.email}</p>
           </div>
-          <div className="flex items-center gap-3">
-            <PushToggle />
-            <form action={signOut}>
-              <button className="text-xs text-gray-600 hover:text-white transition-colors">
-                Sair
-              </button>
-            </form>
-          </div>
+          <form action={signOut}>
+            <button className="text-xs text-gray-600 hover:text-white transition-colors">
+              Sair
+            </button>
+          </form>
         </div>
       </aside>
 

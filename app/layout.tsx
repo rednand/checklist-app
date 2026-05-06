@@ -3,13 +3,13 @@ import "./globals.css";
 import SwRegister from "./sw-register";
 
 export const metadata: Metadata = {
-  title: "Highlight",
-  description: "Registre suas aulas e aprenda inglês com flashcards.",
+  title: "Checklist App",
+  description: "Gere checklists automáticos com inteligência artificial.",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "Highlight",
+    title: "Checklist App",
   },
   other: {
     "mobile-web-app-capable": "yes",

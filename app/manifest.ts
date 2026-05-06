@@ -2,9 +2,9 @@ import type { MetadataRoute } from "next"
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Highlight",
-    short_name: "Highlight",
-    description: "Registre suas aulas e aprenda inglês com flashcards.",
+    name: "Checklist App",
+    short_name: "Checklist",
+    description: "Gere checklists automáticos com inteligência artificial.",
     start_url: "/",
     display: "standalone",
     background_color: "#0a0a0a",
