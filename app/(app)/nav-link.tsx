@@ -20,10 +20,10 @@ export default function NavLink({
   return (
     <Link
       href={href}
-      className={`flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm transition-colors ${
+      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
         isActive
-          ? "bg-yellow-400/10 text-yellow-400"
-          : "text-gray-400 hover:text-white hover:bg-white/5"
+          ? "bg-blue-50 text-blue-600"
+          : "text-slate-500 hover:text-slate-900 hover:bg-slate-100"
       }`}
     >
       {icon}
