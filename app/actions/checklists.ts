@@ -61,7 +61,12 @@ Agrupe os itens em categorias relevantes. Gere entre 10 e 25 itens práticos.`,
   const jsonMatch = content.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error("Resposta inválida da IA")
 
-  const { title, items } = JSON.parse(jsonMatch[0]) as { title: string; items: GeneratedItem[] }
+  let title: string, items: GeneratedItem[]
+  try {
+    ;({ title, items } = JSON.parse(jsonMatch[0]) as { title: string; items: GeneratedItem[] })
+  } catch {
+    throw new Error("Não foi possível interpretar a resposta da IA. Tente novamente.")
+  }
 
   const { data: checklist, error } = await supabase
     .from("checklists")
@@ -90,10 +95,13 @@ Agrupe os itens em categorias relevantes. Gere entre 10 e 25 itens práticos.`,
 
 export async function toggleItem(itemId: string, checked: boolean) {
   const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login")
   await supabase
     .from("checklist_items")
     .update({ checked })
     .eq("id", itemId)
+    .eq("user_id", user.id)
   revalidatePath("/checklists")
 }
 
@@ -150,7 +158,12 @@ Organize os itens em categorias lógicas. Seja específico e prático.`,
   const jsonMatch = responseContent.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error("Resposta inválida da IA")
 
-  const { title, items } = JSON.parse(jsonMatch[0]) as { title: string; items: GeneratedItem[] }
+  let title: string, items: GeneratedItem[]
+  try {
+    ;({ title, items } = JSON.parse(jsonMatch[0]) as { title: string; items: GeneratedItem[] })
+  } catch {
+    throw new Error("Não foi possível interpretar a resposta da IA. Tente novamente.")
+  }
 
   const { data: checklist, error } = await supabase
     .from("checklists")
@@ -270,13 +283,17 @@ export async function addItem(formData: FormData) {
 
 export async function deleteItem(itemId: string, checklistId: string) {
   const supabase = await createClient()
-  await supabase.from("checklist_items").delete().eq("id", itemId)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login")
+  await supabase.from("checklist_items").delete().eq("id", itemId).eq("user_id", user.id)
   revalidatePath(`/checklists/${checklistId}`)
 }
 
 export async function deleteChecklist(id: string) {
   const supabase = await createClient()
-  await supabase.from("checklists").delete().eq("id", id)
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login")
+  await supabase.from("checklists").delete().eq("id", id).eq("user_id", user.id)
   revalidatePath("/checklists")
   redirect("/checklists")
 }
