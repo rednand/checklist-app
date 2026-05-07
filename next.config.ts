@@ -13,13 +13,14 @@ const securityHeaders = [
       "default-src 'self'",
       "script-src 'self' 'unsafe-inline' 'unsafe-eval'",
       "style-src 'self' 'unsafe-inline'",
-      `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL} https://*.supabase.co https://api.groq.com wss://*.supabase.co`,
+      `connect-src 'self' ${process.env.NEXT_PUBLIC_SUPABASE_URL ?? ""} https://*.supabase.co https://api.groq.com wss://*.supabase.co`,
       "img-src 'self' data: blob: https:",
-      "font-src 'self'",
+      "font-src 'self' data:",
       "frame-src https://accounts.google.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",
+      "upgrade-insecure-requests",
     ].join("; "),
   },
 ]
@@ -30,11 +31,24 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "10mb",
     },
   },
+  compress: true,
   async headers() {
     return [
       {
         source: "/(.*)",
         headers: securityHeaders,
+      },
+      {
+        source: "/_next/static/(.*)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=31536000, immutable" },
+        ],
+      },
+      {
+        source: "/(.*)\\.(svg|png|jpg|jpeg|gif|webp|ico|woff|woff2)",
+        headers: [
+          { key: "Cache-Control", value: "public, max-age=86400, stale-while-revalidate=604800" },
+        ],
       },
     ]
   },

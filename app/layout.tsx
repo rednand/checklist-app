@@ -1,7 +1,14 @@
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import "./globals.css"
 
 const APP_URL = process.env.NEXT_PUBLIC_APP_URL ?? "https://checklist-app.vercel.app"
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#2563eb",
+}
 
 export const metadata: Metadata = {
   metadataBase: new URL(APP_URL),
