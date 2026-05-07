@@ -26,23 +26,26 @@ export default function NewChecklistForm() {
   return (
     <div>
       {/* Tabs */}
-      <div className="flex mb-4 border-b border-slate-100">
+      <div className="flex border-b border-slate-100">
         {tabs.map(tab => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setMode(tab.id)}
-            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 pb-2.5 px-2 sm:px-1 flex-1 sm:flex-none text-[10px] sm:text-[11px] font-medium transition-all border-b-2 -mb-px ${
+            className={`flex items-center justify-center gap-1.5 pb-2.5 px-2 sm:px-3 flex-1 sm:flex-none text-[11px] font-medium transition-all border-b-2 -mb-px ${
               mode === tab.id
                 ? "border-blue-500 text-blue-600"
                 : "border-transparent text-slate-400 hover:text-slate-600"
             }`}
           >
             {tab.icon}
-            <span className="sm:inline leading-tight text-center">{tab.label}</span>
+            <span className="hidden sm:inline">{tab.label}</span>
           </button>
         ))}
       </div>
+      <p className="sm:hidden text-[11px] font-medium text-blue-600 pt-2 mb-3">
+        {tabs.find(t => t.id === mode)?.label}
+      </p>
 
       {mode === "ai" && <AiForm isPending={isPending} onSubmit={handleAiSubmit} />}
       {mode === "extract" && <ExtractForm isPending={isPending} startTransition={startTransition} />}
