@@ -39,3 +39,19 @@ CREATE POLICY "Users can manage their own checklist items"
   TO authenticated
   USING  (auth.uid() = user_id)
   WITH CHECK (auth.uid() = user_id);
+
+-- 3. Indexes for performance
+CREATE INDEX IF NOT EXISTS idx_checklists_user_id
+  ON checklists(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_checklists_user_created
+  ON checklists(user_id, created_at DESC);
+
+CREATE INDEX IF NOT EXISTS idx_checklist_items_checklist_id
+  ON checklist_items(checklist_id);
+
+CREATE INDEX IF NOT EXISTS idx_checklist_items_user_id
+  ON checklist_items(user_id);
+
+CREATE INDEX IF NOT EXISTS idx_checklist_items_checklist_position
+  ON checklist_items(checklist_id, position);

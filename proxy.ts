@@ -23,17 +23,29 @@ export async function proxy(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  const { data: { user } } = await supabase.auth.getUser().catch(() => ({ data: { user: null } }))
 
-  const pathname = request.nextUrl.pathname
+  const { pathname, search } = request.nextUrl
+
+  // Redirect uppercase paths preserving query string
+  if (pathname !== pathname.toLowerCase()) {
+    const url = request.nextUrl.clone()
+    url.pathname = pathname.toLowerCase()
+    url.search = search
+    return NextResponse.redirect(url)
+  }
+
   const isPublic = pathname.startsWith("/login") || pathname.startsWith("/auth")
 
   if (!user && !isPublic) {
-    return NextResponse.redirect(new URL("/login", request.url))
+    const loginUrl = new URL("/login", request.url)
+    loginUrl.searchParams.set("next", pathname)
+    return NextResponse.redirect(loginUrl)
   }
 
   if (user && pathname === "/login") {
-    return NextResponse.redirect(new URL("/", request.url))
+    const next = request.nextUrl.searchParams.get("next") ?? "/"
+    return NextResponse.redirect(new URL(next, request.url))
   }
 
   return supabaseResponse

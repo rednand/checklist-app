@@ -7,27 +7,17 @@ export default async function ChecklistsLayout({ children }: { children: React.R
 
   const { data: checklists } = await supabase
     .from("checklists")
-    .select("id, title, created_at")
+    .select("id, title, created_at, checklist_items(id, checked)")
     .eq("user_id", user!.id)
     .order("created_at", { ascending: false })
 
-  const ids = (checklists ?? []).map(c => c.id)
-
-  const { data: itemCounts } = ids.length > 0
-    ? await supabase
-        .from("checklist_items")
-        .select("checklist_id, checked")
-        .in("checklist_id", ids)
-    : { data: [] }
-
-  const checklistsWithCounts = (checklists ?? []).map(c => {
-    const items = (itemCounts ?? []).filter(i => i.checklist_id === c.id)
-    return {
-      ...c,
-      total: items.length,
-      checked: items.filter(i => i.checked).length,
-    }
-  })
+  const checklistsWithCounts = (checklists ?? []).map(c => ({
+    id: c.id,
+    title: c.title,
+    created_at: c.created_at,
+    total: c.checklist_items?.length ?? 0,
+    checked: c.checklist_items?.filter((i: { checked: boolean }) => i.checked).length ?? 0,
+  }))
 
   return (
     <div
