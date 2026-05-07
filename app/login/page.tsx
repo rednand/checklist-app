@@ -37,10 +37,10 @@ export default function LoginPage() {
         </div>
 
         <div className="relative z-10">
-          <h1 className="text-4xl font-bold text-white leading-tight mb-4">
+          <h1 className="text-2xl lg:text-4xl font-bold text-white leading-tight mb-4">
             Checklists inteligentes,<br />gerados por IA
           </h1>
-          <p className="text-blue-100 text-lg leading-relaxed">
+          <p className="text-blue-100 text-base lg:text-lg leading-relaxed">
             Descreva qualquer tarefa e receba um checklist completo e organizado em segundos.
           </p>
 
@@ -64,7 +64,7 @@ export default function LoginPage() {
       </div>
 
       {/* Right panel */}
-      <div className="flex-1 flex items-center justify-center p-8 bg-white">
+      <div className="flex-1 flex items-center justify-center p-6 md:p-8 bg-white">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-10">
             <img src="/icon.svg" alt="Checklist App" className="w-8 h-8 rounded-lg" />
