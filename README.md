@@ -13,4 +13,4 @@ Digite qualquer tema — "viagem internacional", "lançar produto", "mudar de ap
 
 ## Tecnologia
 
-Next.js · Supabase · Tailwind CSS · Claude API
+Next.js · Supabase · Tailwind CSS · Claude

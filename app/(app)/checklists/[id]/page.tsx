@@ -48,11 +48,11 @@ export default async function ChecklistPage({ params }: { params: Promise<{ id: 
       {/* Header */}
       <div className="flex items-start justify-between mb-1">
         <div className="min-w-0 pr-4">
-          <h1 className="text-2xl font-bold text-slate-900">{checklist.title}</h1>
-          <p className="text-slate-400 text-sm mt-0.5">{checklist.prompt}</p>
+          <h1 className="text-xl md:text-2xl font-bold text-slate-900">{checklist.title}</h1>
+          <p className="text-slate-400 text-xs md:text-sm mt-0.5">{checklist.prompt}</p>
         </div>
         <form action={deleteChecklist.bind(null, checklist.id)}>
-          <button type="submit" className="text-slate-300 hover:text-red-500 transition-colors mt-1 p-1 rounded-lg hover:bg-red-50" title="Excluir">
+          <button type="submit" className="text-slate-300 hover:text-red-500 transition-colors p-2 rounded-lg hover:bg-red-50 touch-manipulation" title="Excluir">
             <Trash2 size={15} />
           </button>
         </form>

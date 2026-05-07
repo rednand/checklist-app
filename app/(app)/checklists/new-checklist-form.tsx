@@ -26,20 +26,20 @@ export default function NewChecklistForm() {
   return (
     <div>
       {/* Tabs */}
-      <div className="flex gap-3 mb-4 border-b border-slate-100">
+      <div className="flex mb-4 border-b border-slate-100">
         {tabs.map(tab => (
           <button
             key={tab.id}
             type="button"
             onClick={() => setMode(tab.id)}
-            className={`flex items-center gap-1.5 pb-2.5 px-0.5 text-[11px] font-medium transition-all border-b-2 -mb-px ${
+            className={`flex flex-col sm:flex-row items-center justify-center gap-1 sm:gap-1.5 pb-2.5 px-2 sm:px-1 flex-1 sm:flex-none text-[10px] sm:text-[11px] font-medium transition-all border-b-2 -mb-px ${
               mode === tab.id
                 ? "border-blue-500 text-blue-600"
                 : "border-transparent text-slate-400 hover:text-slate-600"
             }`}
           >
             {tab.icon}
-            {tab.label}
+            <span className="sm:inline leading-tight text-center">{tab.label}</span>
           </button>
         ))}
       </div>

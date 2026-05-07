@@ -21,11 +21,11 @@ export default async function ChecklistsLayout({ children }: { children: React.R
 
   return (
     <div
-      className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4 -mx-6 -my-8 p-5"
+      className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-3 md:gap-4 -mx-4 md:-mx-6 -my-6 md:-my-8 p-3 md:p-5"
       style={{ minHeight: "calc(100vh - 3.5rem)" }}
     >
       <ChecklistsSidebar checklists={checklistsWithCounts} />
-      <div className="bg-white rounded-2xl overflow-y-auto p-8 shadow-sm">
+      <div className="bg-white rounded-2xl overflow-y-auto p-4 md:p-8 shadow-sm">
         {children}
       </div>
     </div>
