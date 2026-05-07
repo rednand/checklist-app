@@ -3,9 +3,7 @@
 import { createClient } from "../utils/supabase/server"
 import { redirect } from "next/navigation"
 import { revalidatePath } from "next/cache"
-import Groq from "groq-sdk"
-
-const groq = new Groq({ apiKey: process.env.GROQ_API_KEY })
+import { generateWithFallback } from "../lib/ai"
 
 type GeneratedItem = {
   text: string
@@ -32,12 +30,8 @@ export async function generateChecklist(formData: FormData) {
     throw new Error("Limite de 20 checklists por hora atingido. Tente novamente mais tarde.")
   }
 
-  const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [
-      {
-        role: "system",
-        content: `Você é um assistente que gera checklists detalhados e práticos.
+  const content = await generateWithFallback({
+    system: `Você é um assistente que gera checklists detalhados e práticos.
 Responda APENAS com um JSON válido no seguinte formato, sem texto adicional:
 {
   "title": "título do checklist",
@@ -47,17 +41,11 @@ Responda APENAS com um JSON válido no seguinte formato, sem texto adicional:
   ]
 }
 Agrupe os itens em categorias relevantes. Gere entre 10 e 25 itens práticos.`,
-      },
-      {
-        role: "user",
-        content: `Gere um checklist para: ${prompt}`,
-      },
-    ],
+    user: `Gere um checklist para: ${prompt}`,
     temperature: 0.7,
-    max_tokens: 2000,
+    maxTokens: 2000,
   })
 
-  const content = completion.choices[0].message.content ?? ""
   const jsonMatch = content.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error("Resposta inválida da IA")
 
@@ -115,7 +103,18 @@ export async function generateFromExtraction(formData: FormData) {
 
   if (!content || !extract) return
 
-  if (content.length > 40000) content = content.slice(0, 40000)
+  const MAX_CHARS = 16000
+  if (content.length > MAX_CHARS) {
+    const lower = content.toLowerCase()
+    const extractLower = extract.toLowerCase()
+    // Usa última ocorrência: ignora menções no índice/sumário e pega o conteúdo real
+    let idx = lower.lastIndexOf(extractLower)
+    if (idx === -1) {
+      idx = lower.lastIndexOf(extractLower.split(" ")[0])
+    }
+    const start = idx !== -1 ? Math.max(0, idx - 100) : 0
+    content = content.slice(start, start + MAX_CHARS)
+  }
 
   const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000).toISOString()
   const { count: recentCount } = await supabase
@@ -128,13 +127,14 @@ export async function generateFromExtraction(formData: FormData) {
     throw new Error("Limite de 20 checklists por hora atingido.")
   }
 
-  const completion = await groq.chat.completions.create({
-    model: "llama-3.3-70b-versatile",
-    messages: [
-      {
-        role: "system",
-        content: `Você é um assistente especialista em análise de documentos.
-Analise o texto fornecido, extraia as informações relevantes sobre "${extract}" e gere um checklist organizado.
+  const responseContent = await generateWithFallback({
+    system: `Você é um assistente especialista em análise de documentos.
+Sua tarefa é extrair TODOS os tópicos/itens relacionados a "${extract}" do texto e gerar um checklist de estudo completo.
+Regras importantes:
+- Extraia TODOS os itens encontrados, sem resumir ou omitir nenhum
+- Se o texto especificar um cargo ou área, extraia apenas o conteúdo desse cargo/área específico
+- Cada tópico do conteúdo programático deve virar um item separado no checklist
+- Use as matérias/disciplinas como categorias
 Responda APENAS com um JSON válido no seguinte formato, sem texto adicional:
 {
   "title": "título descritivo do checklist",
@@ -142,19 +142,12 @@ Responda APENAS com um JSON válido no seguinte formato, sem texto adicional:
     { "text": "descrição do item", "category": "Nome da Categoria", "position": 0 },
     ...
   ]
-}
-Organize os itens em categorias lógicas. Seja específico e prático.`,
-      },
-      {
-        role: "user",
-        content: `Extraia "${extract}" do seguinte texto e gere um checklist:\n\n${content}`,
-      },
-    ],
+}`,
+    user: `Extraia "${extract}" do seguinte texto e gere um checklist completo com TODOS os tópicos encontrados:\n\n${content}`,
     temperature: 0.3,
-    max_tokens: 3000,
+    maxTokens: 4000,
   })
 
-  const responseContent = completion.choices[0].message.content ?? ""
   const jsonMatch = responseContent.match(/\{[\s\S]*\}/)
   if (!jsonMatch) throw new Error("Resposta inválida da IA")
 

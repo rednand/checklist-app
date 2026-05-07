@@ -154,7 +154,7 @@ function ExtractForm({ isPending, startTransition }: { isPending: boolean; start
           : <><FileText size={14} /> Extrair e Gerar Checklist</>}
       </button>
     </form>
-  )
+  ) 
 }
 
 type ParsedRow = Record<string, string>
@@ -315,7 +315,7 @@ async function extractTextFromPDF(file: File): Promise<string> {
   for (let i = 1; i <= pdf.numPages; i++) {
     const page = await pdf.getPage(i)
     const content = await page.getTextContent()
-    const text = content.items.map((item: any) => ("str" in item ? item.str : "")).join(" ")
+    const text = content.items.map((item: unknown) => (typeof item === "object" && item !== null && "str" in item ? (item as { str: string }).str : "")).join(" ")
     pages.push(text)
   }
 
