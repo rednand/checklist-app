@@ -244,6 +244,38 @@ export async function createManualChecklist(formData: FormData) {
   redirect(`/checklists/${checklist.id}`)
 }
 
+export async function createFromMarkdown(formData: FormData) {
+  const supabase = await createClient()
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) redirect("/login")
+
+  const title = (formData.get("title") as string).trim()
+  const itemsJson = formData.get("items") as string
+  const items: { text: string; category: string | null }[] = JSON.parse(itemsJson || "[]")
+
+  if (!title || items.length === 0) return
+
+  const { data: checklist, error } = await supabase
+    .from("checklists")
+    .insert({ title, prompt: "Importado de markdown", user_id: user.id })
+    .select()
+    .single()
+
+  if (error) throw new Error(error.message)
+
+  await supabase.from("checklist_items").insert(
+    items.map((item, i) => ({
+      checklist_id: checklist.id,
+      user_id: user.id,
+      text: item.text,
+      category: item.category ?? null,
+      position: i,
+    }))
+  )
+
+  redirect(`/checklists/${checklist.id}`)
+}
+
 export async function addItem(formData: FormData) {
   const supabase = await createClient()
   const { data: { user } } = await supabase.auth.getUser()
@@ -251,7 +283,7 @@ export async function addItem(formData: FormData) {
 
   const checklist_id = formData.get("checklist_id") as string
   const text = (formData.get("text") as string).trim()
-  const category = (formData.get("category") as string).trim() || null
+  const category = ((formData.get("category") as string | null)?.trim()) || null
 
   if (!text) return
 
