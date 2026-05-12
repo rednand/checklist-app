@@ -708,27 +708,28 @@ function MarkdownForm({
               </div>
             ))}
           </div>
-
-          <input
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              titleManualRef.current = true;
-            }}
-            type="text"
-            placeholder="Título do checklist..."
-            required
-            disabled={isPending}
-            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 transition-all"
-          />
-
-          <SubmitButton
-            isPending={isPending}
-            label={`Criar Checklist (${parsed.items.length} itens)`}
-            icon={<Hash size={14} />}
-          />
         </>
       )}
+
+      <input
+        value={title}
+        onChange={(e) => {
+          setTitle(e.target.value);
+          titleManualRef.current = true;
+        }}
+        type="text"
+        placeholder="Título do checklist..."
+        required
+        disabled={isPending}
+        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 transition-all"
+      />
+
+      <SubmitButton
+        isPending={isPending}
+        label={parsed.items.length > 0 ? `Criar Checklist (${parsed.items.length} itens)` : "Criar Checklist"}
+        icon={<Hash size={14} />}
+        disabled={parsed.items.length === 0 || !title.trim()}
+      />
     </form>
   );
 }
