@@ -10,3 +10,4 @@ This version has breaking changes — APIs, conventions, and file structure may 
 @.claude/rules/supabase.md
 @.claude/rules/structure.md
 @.claude/rules/workflow.md
+@.claude/commands/review.md

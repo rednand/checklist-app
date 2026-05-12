@@ -6,6 +6,7 @@ import {
   createManualChecklist,
   generateFromExtraction,
   createFromSpreadsheet,
+  createFromMarkdown,
 } from "../../actions/checklists";
 import {
   Loader2,
@@ -16,9 +17,10 @@ import {
   FileText,
   Upload,
   Table,
+  Hash,
 } from "lucide-react";
 
-type Mode = "ai" | "extract" | "spreadsheet" | "manual";
+type Mode = "ai" | "extract" | "spreadsheet" | "manual" | "markdown";
 
 export default function NewChecklistForm() {
   const [mode, setMode] = useState<Mode>("ai");
@@ -35,6 +37,7 @@ export default function NewChecklistForm() {
     { id: "extract", label: "Extrair PDF/texto", icon: <FileText size={13} /> },
     { id: "spreadsheet", label: "Planilha/CSV", icon: <Table size={13} /> },
     { id: "manual", label: "Manual", icon: <ListChecks size={13} /> },
+    { id: "markdown", label: "Markdown", icon: <Hash size={13} /> },
   ];
 
   return (
@@ -74,6 +77,9 @@ export default function NewChecklistForm() {
       )}
       {mode === "manual" && (
         <ManualForm isPending={isPending} startTransition={startTransition} />
+      )}
+      {mode === "markdown" && (
+        <MarkdownForm isPending={isPending} startTransition={startTransition} />
       )}
     </div>
   );
@@ -576,6 +582,153 @@ function ManualForm({
         icon={<ListChecks size={14} />}
         disabled={items.length === 0}
       />
+    </form>
+  );
+}
+
+function parseMarkdown(md: string): { title: string; items: { text: string; category: string | null }[] } {
+  const lines = md.split("\n");
+  let title = "";
+  let h2: string | null = null;
+  let h3: string | null = null;
+  const items: { text: string; category: string | null }[] = [];
+
+  for (const rawLine of lines) {
+    const line = rawLine.trim();
+    if (!line || line === "---") continue;
+
+    const h1Match = line.match(/^# (.+)/);
+    if (h1Match) {
+      if (!title) {
+        title = h1Match[1].trim();
+      } else {
+        h2 = h1Match[1].trim();
+        h3 = null;
+      }
+      continue;
+    }
+
+    const h2Match = line.match(/^## (.+)/);
+    if (h2Match) {
+      h2 = h2Match[1].trim();
+      h3 = null;
+      continue;
+    }
+
+    const h3Match = line.match(/^### (.+)/);
+    if (h3Match) {
+      h3 = h3Match[1].trim();
+      continue;
+    }
+
+    const checkbox = line.match(/^[-*] \[[ xX]\] (.+)/);
+    if (checkbox) {
+      const category = h2 && h3 ? `${h2} › ${h3}` : h3 ?? h2;
+      items.push({ text: checkbox[1].trim(), category });
+    }
+  }
+
+  return { title, items };
+}
+
+function MarkdownForm({
+  isPending,
+  startTransition,
+}: {
+  isPending: boolean;
+  startTransition: (fn: () => void) => void;
+}) {
+  const [markdown, setMarkdown] = useState("");
+  const [title, setTitle] = useState("");
+  const titleManualRef = useRef(false);
+
+  const parsed = parseMarkdown(markdown);
+
+  const categoryOrder: string[] = [];
+  const itemsByCategory: Record<string, { text: string; category: string | null }[]> = {};
+  for (const item of parsed.items) {
+    const key = item.category ?? "";
+    if (!itemsByCategory[key]) {
+      categoryOrder.push(key);
+      itemsByCategory[key] = [];
+    }
+    itemsByCategory[key].push(item);
+  }
+
+  const handleMarkdownChange = (value: string) => {
+    setMarkdown(value);
+    if (!titleManualRef.current) {
+      const p = parseMarkdown(value);
+      if (p.title) setTitle(p.title);
+    }
+  };
+
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!title.trim() || parsed.items.length === 0) return;
+    const formData = new FormData();
+    formData.set("title", title.trim());
+    formData.set("items", JSON.stringify(parsed.items));
+    startTransition(() => createFromMarkdown(formData));
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <textarea
+        value={markdown}
+        onChange={(e) => handleMarkdownChange(e.target.value)}
+        placeholder={"# Título do Checklist\n\n## Categoria\n### Subcategoria\n\n- [ ] Item 1\n- [ ] Item 2"}
+        rows={8}
+        disabled={isPending}
+        className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-slate-900 text-sm placeholder-slate-400 resize-none focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 font-mono transition-all"
+        autoFocus
+      />
+
+      {parsed.items.length > 0 && (
+        <>
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 text-xs text-slate-500">
+            <span className="font-medium text-slate-700">{parsed.items.length}</span> itens ·{" "}
+            <span className="font-medium text-slate-700">{categoryOrder.filter(Boolean).length}</span> categorias
+          </div>
+
+          <div className="max-h-44 overflow-y-auto space-y-2.5 border border-slate-100 rounded-xl p-3">
+            {categoryOrder.map((cat) => (
+              <div key={cat}>
+                {cat && (
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">{cat}</p>
+                )}
+                <div className="space-y-0.5">
+                  {itemsByCategory[cat].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2 text-xs text-slate-600">
+                      <div className="w-3 h-3 rounded border border-slate-300 shrink-0" />
+                      <span className="truncate">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+
+          <input
+            value={title}
+            onChange={(e) => {
+              setTitle(e.target.value);
+              titleManualRef.current = true;
+            }}
+            type="text"
+            placeholder="Título do checklist..."
+            required
+            disabled={isPending}
+            className="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-slate-900 text-sm placeholder-slate-400 focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 disabled:opacity-50 transition-all"
+          />
+
+          <SubmitButton
+            isPending={isPending}
+            label={`Criar Checklist (${parsed.items.length} itens)`}
+            icon={<Hash size={14} />}
+          />
+        </>
+      )}
     </form>
   );
 }
