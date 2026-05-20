@@ -34,7 +34,6 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-4 md:space-y-6">
-      {/* Banner */}
       <div className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-blue-600 to-indigo-600 px-5 py-6 md:px-8 md:py-7 shadow-md">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute -top-10 -right-10 w-64 h-64 bg-white rounded-full blur-3xl" />
@@ -47,7 +46,6 @@ export default async function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 md:gap-4">
         {[
           { value: totalChecklists ?? 0, label: "Checklists criados", icon: <FileText size={16} />, border: "border-t-blue-400", iconBg: "bg-blue-50", iconColor: "text-blue-500" },
@@ -66,9 +64,7 @@ export default async function DashboardPage() {
         ))}
       </div>
 
-      {/* Bottom grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Recent checklists */}
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm p-4 md:p-5">
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -109,7 +105,6 @@ export default async function DashboardPage() {
           )}
         </div>
 
-        {/* Generate form */}
         <div className="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 border-b border-slate-100 px-4 md:px-5 py-4 flex items-center gap-2">
             <div className="w-6 h-6 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">

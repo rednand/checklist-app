@@ -24,7 +24,6 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* Left panel */}
       <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-blue-500 to-indigo-600 flex-col justify-between p-12 relative overflow-hidden">
         <div className="absolute inset-0 opacity-10">
           <div className="absolute top-20 left-10 w-72 h-72 bg-white rounded-full blur-3xl" />
@@ -63,7 +62,6 @@ export default function LoginPage() {
         </p>
       </div>
 
-      {/* Right panel */}
       <div className="flex-1 flex items-center justify-center p-6 md:p-8 bg-white">
         <div className="w-full max-w-sm">
           <div className="lg:hidden flex items-center gap-2 mb-10">

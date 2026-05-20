@@ -21,19 +21,21 @@ export default function MobileNav() {
           <Link
             key={href}
             href={href}
-            className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold tracking-wide transition-colors ${
+            className={`flex-1 flex flex-col items-center justify-center gap-1 py-3 transition-colors ${
               isActive ? "text-blue-600" : "text-slate-400"
             }`}
           >
             <Icon size={20} />
-            {label}
+            <span className={`text-[10px] font-bold tracking-wide ${isActive ? "" : "invisible"}`}>
+              {label}
+            </span>
           </Link>
         )
       })}
       <form action={signOut} className="flex-1">
-        <button className="w-full h-full flex flex-col items-center justify-center gap-1 py-3 text-[10px] font-bold tracking-wide text-slate-400 hover:text-slate-700 transition-colors">
+        <button className="w-full h-full flex flex-col items-center justify-center gap-1 py-3 text-slate-400 hover:text-slate-700 transition-colors">
           <LogOut size={20} />
-          Sair
+          <span className="invisible text-[10px] font-bold tracking-wide">Sair</span>
         </button>
       </form>
     </nav>

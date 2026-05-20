@@ -63,7 +63,6 @@ export default async function ChecklistPage({ params }: { params: Promise<{ id: 
 
   return (
     <div className="max-w-3xl">
-      {/* Header */}
       <div className="flex items-start justify-between mb-1">
         <div className="min-w-0 pr-4">
           <h1 className="text-xl md:text-2xl font-bold text-slate-900">{checklist.title}</h1>
@@ -76,7 +75,6 @@ export default async function ChecklistPage({ params }: { params: Promise<{ id: 
         </form>
       </div>
 
-      {/* Progress */}
       <div className="mt-5 mb-8">
         <div className="flex items-center justify-between mb-2">
           <span className="text-xs font-medium text-slate-500">
@@ -92,7 +90,6 @@ export default async function ChecklistPage({ params }: { params: Promise<{ id: 
         </div>
       </div>
 
-      {/* Items */}
       <div className="space-y-6">
         {isHierarchical ? (
           parentOrder.map((parent, pi) => {

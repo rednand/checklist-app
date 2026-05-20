@@ -55,7 +55,7 @@ export default function ToggleItem({ item }: { item: Item }) {
 
       <button
         onClick={handleDelete}
-        className="opacity-0 group-hover/item:opacity-100 p-1.5 mr-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0"
+        className="opacity-100 md:opacity-0 md:group-hover/item:opacity-100 p-1.5 mr-2 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all shrink-0"
         title="Excluir item"
       >
         <X size={13} />
