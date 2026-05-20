@@ -55,7 +55,7 @@ export default function NewChecklistForm() {
             }`}
           >
             {tab.icon}
-            <span className="hidden sm:inline" style={{ fontSize: "13px" }}>{tab.label}</span>
+            <span className="hidden sm:inline text-[13px]">{tab.label}</span>
           </button>
         ))}
       </div>

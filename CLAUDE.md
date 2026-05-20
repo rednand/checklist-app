@@ -96,5 +96,5 @@ Server Actions have a 10 MB body size limit configured in `next.config.ts`.
 <!-- SPECKIT START -->
 For additional context about technologies to be used, project structure,
 shell commands, and other important information, read the current plan
-at specs/001-checklist-app/plan.md
+at specs/002-responsive-audit/plan.md
 <!-- SPECKIT END -->
