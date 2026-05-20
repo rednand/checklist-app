@@ -1,0 +1,30 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git checkout *)",
+      "Bash(git config *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "PowerShell(npm install *)",
+      "PowerShell(npm uninstall *)",
+      "Bash(git fetch *)",
+      "Bash(grep -E \"\\\\.\\(ts|tsx|json|css|sql|js\\)$\")",
+      "Bash(git merge *)",
+      "Bash(xargs grep -l \"mobile-nav\")",
+      "Bash(Get-ChildItem -Path . -Force)",
+      "Bash(Select-Object Name)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(not exist *)",
+      "PowerShell(New-Item *)",
+      "Bash(npm uninstall *)",
+      "WebFetch(domain:openrouter.ai)",
+      "Bash(claude mcp *)",
+      "Bash(npx -y @azure-devops/mcp --help)",
+      "mcp__azure-devops__wit_my_work_items",
+      "Bash(Get-ChildItem -Path \"c:\\\\english-notes-saas\" -Force)",
+      "Bash(Select-Object Name, Mode)"
+    ]
+  }
+}

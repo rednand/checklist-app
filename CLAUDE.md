@@ -92,3 +92,9 @@ SENTRY_DSN (+ SENTRY_ORG, SENTRY_PROJECT for build-time source maps)
 ```
 
 Server Actions have a 10 MB body size limit configured in `next.config.ts`.
+
+<!-- SPECKIT START -->
+For additional context about technologies to be used, project structure,
+shell commands, and other important information, read the current plan
+at specs/001-checklist-app/plan.md
+<!-- SPECKIT END -->
