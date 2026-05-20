@@ -18,7 +18,7 @@ export default function AddItemForm({ checklistId, categories }: { checklistId: 
   }
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit} className="flex items-center gap-2 p-3 border-t border-slate-100">
+    <form ref={formRef} onSubmit={handleSubmit} className="flex items-center gap-2 p-3">
       <input type="hidden" name="checklist_id" value={checklistId} />
 
       {categories.length > 0 && (

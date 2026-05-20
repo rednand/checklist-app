@@ -15,6 +15,7 @@ import {
   generateFromExtraction,
   createFromSpreadsheet,
   createManualChecklist,
+  createFromMarkdown,
   toggleItem,
   addItem,
   deleteItem,
@@ -363,6 +364,57 @@ describe('createManualChecklist', () => {
     await createManualChecklist(fd)
 
     expect(vi.mocked(redirect)).toHaveBeenCalledWith('/checklists/ck-empty')
+  })
+})
+
+describe('createFromMarkdown', () => {
+  it('returns early when title is empty', async () => {
+    vi.mocked(createClient).mockResolvedValue(makeSupabase() as unknown as Client)
+    const fd = new FormData()
+    fd.set('title', '')
+    fd.set('items', JSON.stringify([{ text: 'Item', category: null }]))
+
+    await createFromMarkdown(fd)
+
+    expect(vi.mocked(redirect)).not.toHaveBeenCalled()
+  })
+
+  it('returns early when items array is empty', async () => {
+    vi.mocked(createClient).mockResolvedValue(makeSupabase() as unknown as Client)
+    const fd = new FormData()
+    fd.set('title', 'Markdown List')
+    fd.set('items', '[]')
+
+    await createFromMarkdown(fd)
+
+    expect(vi.mocked(redirect)).not.toHaveBeenCalled()
+  })
+
+  it('throws when the checklist insert fails', async () => {
+    vi.mocked(createClient).mockResolvedValue(
+      makeSupabase({ hasRateLimit: false, checklistInsertError: { message: 'db error' } }) as unknown as Client
+    )
+    const fd = new FormData()
+    fd.set('title', 'Markdown List')
+    fd.set('items', JSON.stringify([{ text: 'Item 1', category: 'Setup' }]))
+
+    await expect(createFromMarkdown(fd)).rejects.toThrow('db error')
+  })
+
+  it('redirects to the new checklist on success', async () => {
+    vi.mocked(createClient).mockResolvedValue(
+      makeSupabase({ checklistId: 'ck-md', hasRateLimit: false }) as unknown as Client
+    )
+    const fd = new FormData()
+    fd.set('title', 'Markdown List')
+    fd.set('items', JSON.stringify([
+      { text: 'Item 1', category: 'Setup' },
+      { text: 'Item 2', category: null },
+    ]))
+
+    await createFromMarkdown(fd)
+
+    expect(vi.mocked(redirect)).toHaveBeenCalledWith('/checklists/ck-md')
   })
 })
 

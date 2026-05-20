@@ -1,13 +1,13 @@
-"use client";
+﻿"use client"
 
-import { useTransition, useState, useRef } from "react";
+import { useTransition, useState, useRef } from "react"
 import {
   generateChecklist,
   createManualChecklist,
   generateFromExtraction,
   createFromSpreadsheet,
   createFromMarkdown,
-} from "../../actions/checklists";
+} from "../../actions/checklists"
 import {
   Loader2,
   Sparkles,
@@ -18,19 +18,19 @@ import {
   Upload,
   Table,
   Hash,
-} from "lucide-react";
+} from "lucide-react"
 
-type Mode = "ai" | "extract" | "spreadsheet" | "manual" | "markdown";
+type Mode = "ai" | "extract" | "spreadsheet" | "manual" | "markdown"
 
 export default function NewChecklistForm() {
-  const [mode, setMode] = useState<Mode>("ai");
-  const [isPending, startTransition] = useTransition();
+  const [mode, setMode] = useState<Mode>("ai")
+  const [isPending, startTransition] = useTransition()
 
   const handleAiSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    startTransition(() => generateChecklist(formData));
-  };
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(() => generateChecklist(formData))
+  }
 
   const tabs: { id: Mode; label: string; icon: React.ReactNode }[] = [
     { id: "ai", label: "Gerar com IA", icon: <Sparkles size={13} /> },
@@ -38,7 +38,7 @@ export default function NewChecklistForm() {
     { id: "spreadsheet", label: "Planilha/CSV", icon: <Table size={13} /> },
     { id: "manual", label: "Manual", icon: <ListChecks size={13} /> },
     { id: "markdown", label: "Markdown", icon: <Hash size={13} /> },
-  ];
+  ]
 
   return (
     <div>
@@ -82,15 +82,15 @@ export default function NewChecklistForm() {
         <MarkdownForm isPending={isPending} startTransition={startTransition} />
       )}
     </div>
-  );
+  )
 }
 
 function AiForm({
   isPending,
   onSubmit,
 }: {
-  isPending: boolean;
-  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+  isPending: boolean
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
 }) {
   return (
     <form onSubmit={onSubmit} className="space-y-3">
@@ -109,52 +109,52 @@ function AiForm({
         icon={<Sparkles size={14} />}
       />
     </form>
-  );
+  )
 }
 
 function ExtractForm({
   isPending,
   startTransition,
 }: {
-  isPending: boolean;
-  startTransition: (fn: () => void) => void;
+  isPending: boolean
+  startTransition: (fn: () => void) => void
 }) {
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [inputMode, setInputMode] = useState<"file" | "text">("file");
-  const [extracting, setExtracting] = useState(false);
-  const extractRef = useRef<HTMLInputElement>(null);
+  const [fileName, setFileName] = useState<string | null>(null)
+  const [inputMode, setInputMode] = useState<"file" | "text">("file")
+  const [extracting, setExtracting] = useState(false)
+  const extractRef = useRef<HTMLInputElement>(null)
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const extractWhat = extractRef.current?.value.trim() ?? "";
-    if (!extractWhat) return;
+    e.preventDefault()
+    const form = e.currentTarget
+    const extractWhat = extractRef.current?.value.trim() ?? ""
+    if (!extractWhat) return
 
-    const formData = new FormData();
-    formData.set("extract", extractWhat);
+    const formData = new FormData()
+    formData.set("extract", extractWhat)
 
     if (inputMode === "file") {
       const fileInput =
-        form.querySelector<HTMLInputElement>('input[type="file"]');
-      const file = fileInput?.files?.[0];
-      if (!file) return;
+        form.querySelector<HTMLInputElement>('input[type="file"]')
+      const file = fileInput?.files?.[0]
+      if (!file) return
 
-      setExtracting(true);
+      setExtracting(true)
       try {
-        const text = await extractTextFromPDF(file);
-        formData.set("text", text);
+        const text = await extractTextFromPDF(file)
+        formData.set("text", text)
       } finally {
-        setExtracting(false);
+        setExtracting(false)
       }
     } else {
-      const textarea = form.querySelector<HTMLTextAreaElement>("textarea");
-      formData.set("text", textarea?.value ?? "");
+      const textarea = form.querySelector<HTMLTextAreaElement>("textarea")
+      formData.set("text", textarea?.value ?? "")
     }
 
-    startTransition(() => generateFromExtraction(formData));
-  };
+    startTransition(() => generateFromExtraction(formData))
+  }
 
-  const busy = isPending || extracting;
+  const busy = isPending || extracting
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
@@ -233,104 +233,104 @@ function ExtractForm({
         )}
       </button>
     </form>
-  );
+  )
 }
 
-type ParsedRow = Record<string, string>;
+type ParsedRow = Record<string, string>
 
 async function parseSpreadsheet(
   file: File | null,
   rawText: string,
 ): Promise<{ headers: string[]; rows: ParsedRow[] }> {
   if (file) {
-    const { read, utils } = await import("xlsx");
-    const buffer = await file.arrayBuffer();
-    const wb = read(buffer);
-    const ws = wb.Sheets[wb.SheetNames[0]];
-    const data = utils.sheet_to_json<ParsedRow>(ws, { defval: "" });
-    const headers = data.length > 0 ? Object.keys(data[0]) : [];
-    return { headers, rows: data };
+    const { read, utils } = await import("xlsx")
+    const buffer = await file.arrayBuffer()
+    const wb = read(buffer)
+    const ws = wb.Sheets[wb.SheetNames[0]]
+    const data = utils.sheet_to_json<ParsedRow>(ws, { defval: "" })
+    const headers = data.length > 0 ? Object.keys(data[0]) : []
+    return { headers, rows: data }
   }
 
   const lines = rawText
     .split("\n")
     .map((l) => l.trim())
-    .filter(Boolean);
-  if (lines.length < 2) return { headers: [], rows: [] };
+    .filter(Boolean)
+  if (lines.length < 2) return { headers: [], rows: [] }
 
-  const sep = lines[0].includes(";") ? ";" : ",";
-  const headers = lines[0].split(sep).map((h) => h.trim());
+  const sep = lines[0].includes(";") ? ";" : ","
+  const headers = lines[0].split(sep).map((h) => h.trim())
   const rows = lines.slice(1).map((line) => {
-    const cells = line.split(sep);
+    const cells = line.split(sep)
     return Object.fromEntries(
       headers.map((h, i) => [h, (cells[i] ?? "").trim()]),
-    );
-  });
-  return { headers, rows };
+    )
+  })
+  return { headers, rows }
 }
 
 function SpreadsheetForm({
   isPending,
   startTransition,
 }: {
-  isPending: boolean;
-  startTransition: (fn: () => void) => void;
+  isPending: boolean
+  startTransition: (fn: () => void) => void
 }) {
-  const [headers, setHeaders] = useState<string[]>([]);
-  const [rows, setRows] = useState<ParsedRow[]>([]);
-  const [itemCol, setItemCol] = useState("");
-  const [categoryCol, setCategoryCol] = useState("");
-  const [title, setTitle] = useState("");
-  const [fileName, setFileName] = useState<string | null>(null);
-  const [inputMode, setInputMode] = useState<"file" | "text">("file");
-  const [parsing, setParsing] = useState(false);
-  const textRef = useRef<HTMLTextAreaElement>(null);
+  const [headers, setHeaders] = useState<string[]>([])
+  const [rows, setRows] = useState<ParsedRow[]>([])
+  const [itemCol, setItemCol] = useState("")
+  const [categoryCol, setCategoryCol] = useState("")
+  const [title, setTitle] = useState("")
+  const [fileName, setFileName] = useState<string | null>(null)
+  const [inputMode, setInputMode] = useState<"file" | "text">("file")
+  const [parsing, setParsing] = useState(false)
+  const textRef = useRef<HTMLTextAreaElement>(null)
 
   const handleParse = async (file: File | null) => {
-    const text = textRef.current?.value ?? "";
-    if (!file && !text.trim()) return;
-    setParsing(true);
+    const text = textRef.current?.value ?? ""
+    if (!file && !text.trim()) return
+    setParsing(true)
     try {
-      const result = await parseSpreadsheet(file, text);
-      setHeaders(result.headers);
-      setRows(result.rows);
+      const result = await parseSpreadsheet(file, text)
+      setHeaders(result.headers)
+      setRows(result.rows)
       if (result.headers.length > 0) {
         const topicCol =
           result.headers.find((h) =>
             /tópico|topic|item|tarefa|assunto|descrição/i.test(h),
-          ) ?? result.headers[result.headers.length - 1];
+          ) ?? result.headers[result.headers.length - 1]
         const catCol =
           result.headers.find((h) =>
             /categor|subcategor|área|area|disciplina|matéria/i.test(h),
-          ) ?? "";
-        setItemCol(topicCol);
-        setCategoryCol(catCol);
+          ) ?? ""
+        setItemCol(topicCol)
+        setCategoryCol(catCol)
       }
     } finally {
-      setParsing(false);
+      setParsing(false)
     }
-  };
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!itemCol || rows.length === 0) return;
+    e.preventDefault()
+    if (!itemCol || rows.length === 0) return
 
-    const str = (v: unknown) => (v == null ? "" : String(v).trim());
+    const str = (v: unknown) => (v == null ? "" : String(v).trim())
 
     const items = rows
       .filter((r) => str(r[itemCol]))
       .map((r) => ({
         text: str(r[itemCol]),
         category: categoryCol ? str(r[categoryCol]) || null : null,
-      }));
+      }))
 
-    const formData = new FormData();
-    formData.set("title", title);
-    formData.set("items", JSON.stringify(items));
-    startTransition(() => createFromSpreadsheet(formData));
-  };
+    const formData = new FormData()
+    formData.set("title", title)
+    formData.set("items", JSON.stringify(items))
+    startTransition(() => createFromSpreadsheet(formData))
+  }
 
-  const busy = isPending || parsing;
+  const busy = isPending || parsing
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
@@ -365,10 +365,10 @@ function SpreadsheetForm({
             className="hidden"
             disabled={busy}
             onChange={async (e) => {
-              const f = e.target.files?.[0] ?? null;
+              const f = e.target.files?.[0] ?? null
               if (f) {
-                setFileName(f.name);
-                await handleParse(f);
+                setFileName(f.name)
+                await handleParse(f)
               }
             }}
           />
@@ -457,61 +457,61 @@ function SpreadsheetForm({
         </>
       )}
     </form>
-  );
+  )
 }
 
 async function extractTextFromPDF(file: File): Promise<string> {
-  const arrayBuffer = await file.arrayBuffer();
-  const pdfjsLib = await import("pdfjs-dist");
+  const arrayBuffer = await file.arrayBuffer()
+  const pdfjsLib = await import("pdfjs-dist")
   pdfjsLib.GlobalWorkerOptions.workerSrc = new URL(
     "pdfjs-dist/build/pdf.worker.mjs",
     import.meta.url,
-  ).toString();
+  ).toString()
 
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
-  const pages: string[] = [];
+  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise
+  const pages: string[] = []
 
   for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
+    const page = await pdf.getPage(i)
+    const content = await page.getTextContent()
     const text = content.items
       .map((item: unknown) =>
         typeof item === "object" && item !== null && "str" in item
           ? (item as { str: string }).str
           : "",
       )
-      .join(" ");
-    pages.push(text);
+      .join(" ")
+    pages.push(text)
   }
 
-  return pages.join("\n");
+  return pages.join("\n")
 }
 
 function ManualForm({
   isPending,
   startTransition,
 }: {
-  isPending: boolean;
-  startTransition: (fn: () => void) => void;
+  isPending: boolean
+  startTransition: (fn: () => void) => void
 }) {
-  const [items, setItems] = useState<string[]>([]);
-  const [inputValue, setInputValue] = useState("");
-  const inputRef = useRef<HTMLInputElement>(null);
+  const [items, setItems] = useState<string[]>([])
+  const [inputValue, setInputValue] = useState("")
+  const inputRef = useRef<HTMLInputElement>(null)
 
   const addItem = () => {
-    const text = inputValue.trim();
-    if (!text) return;
-    setItems((prev) => [...prev, text]);
-    setInputValue("");
-    inputRef.current?.focus();
-  };
+    const text = inputValue.trim()
+    if (!text) return
+    setItems((prev) => [...prev, text])
+    setInputValue("")
+    inputRef.current?.focus()
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const formData = new FormData(e.currentTarget);
-    formData.set("items", JSON.stringify(items));
-    startTransition(() => createManualChecklist(formData));
-  };
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    formData.set("items", JSON.stringify(items))
+    startTransition(() => createManualChecklist(formData))
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
@@ -558,8 +558,8 @@ function ManualForm({
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === "Enter") {
-              e.preventDefault();
-              addItem();
+              e.preventDefault()
+              addItem()
             }
           }}
           placeholder="Adicionar item (Enter para confirmar)..."
@@ -583,94 +583,94 @@ function ManualForm({
         disabled={items.length === 0}
       />
     </form>
-  );
+  )
 }
 
 function parseMarkdown(md: string): { title: string; items: { text: string; category: string | null }[] } {
-  const lines = md.split("\n");
-  let title = "";
-  let h2: string | null = null;
-  let h3: string | null = null;
-  const items: { text: string; category: string | null }[] = [];
+  const lines = md.split("\n")
+  let title = ""
+  let h2: string | null = null
+  let h3: string | null = null
+  const items: { text: string; category: string | null }[] = []
 
   for (const rawLine of lines) {
-    const line = rawLine.trim();
-    if (!line || line === "---") continue;
+    const line = rawLine.trim()
+    if (!line || line === "---") continue
 
-    const h1Match = line.match(/^# (.+)/);
+    const h1Match = line.match(/^# (.+)/)
     if (h1Match) {
       if (!title) {
-        title = h1Match[1].trim();
+        title = h1Match[1].trim()
       } else {
-        h2 = h1Match[1].trim();
-        h3 = null;
+        h2 = h1Match[1].trim()
+        h3 = null
       }
-      continue;
+      continue
     }
 
-    const h2Match = line.match(/^## (.+)/);
+    const h2Match = line.match(/^## (.+)/)
     if (h2Match) {
-      h2 = h2Match[1].trim();
-      h3 = null;
-      continue;
+      h2 = h2Match[1].trim()
+      h3 = null
+      continue
     }
 
-    const h3Match = line.match(/^### (.+)/);
+    const h3Match = line.match(/^### (.+)/)
     if (h3Match) {
-      h3 = h3Match[1].trim();
-      continue;
+      h3 = h3Match[1].trim()
+      continue
     }
 
-    const checkbox = line.match(/^[-*] \[[ xX]\] (.+)/);
+    const checkbox = line.match(/^[-*] \[[ xX]\] (.+)/)
     if (checkbox) {
-      const category = h2 && h3 ? `${h2} › ${h3}` : h3 ?? h2;
-      items.push({ text: checkbox[1].trim(), category });
+      const category = h2 && h3 ? `${h2} › ${h3}` : h3 ?? h2
+      items.push({ text: checkbox[1].trim(), category })
     }
   }
 
-  return { title, items };
+  return { title, items }
 }
 
 function MarkdownForm({
   isPending,
   startTransition,
 }: {
-  isPending: boolean;
-  startTransition: (fn: () => void) => void;
+  isPending: boolean
+  startTransition: (fn: () => void) => void
 }) {
-  const [markdown, setMarkdown] = useState("");
-  const [title, setTitle] = useState("");
-  const titleManualRef = useRef(false);
+  const [markdown, setMarkdown] = useState("")
+  const [title, setTitle] = useState("")
+  const titleManualRef = useRef(false)
 
-  const parsed = parseMarkdown(markdown);
+  const parsed = parseMarkdown(markdown)
 
-  const categoryOrder: string[] = [];
-  const itemsByCategory: Record<string, { text: string; category: string | null }[]> = {};
+  const categoryOrder: string[] = []
+  const itemsByCategory: Record<string, { text: string; category: string | null }[]> = {}
   for (const item of parsed.items) {
-    const key = item.category ?? "";
+    const key = item.category ?? ""
     if (!itemsByCategory[key]) {
-      categoryOrder.push(key);
-      itemsByCategory[key] = [];
+      categoryOrder.push(key)
+      itemsByCategory[key] = []
     }
-    itemsByCategory[key].push(item);
+    itemsByCategory[key].push(item)
   }
 
   const handleMarkdownChange = (value: string) => {
-    setMarkdown(value);
+    setMarkdown(value)
     if (!titleManualRef.current) {
-      const p = parseMarkdown(value);
-      if (p.title) setTitle(p.title);
+      const p = parseMarkdown(value)
+      if (p.title) setTitle(p.title)
     }
-  };
+  }
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!title.trim() || parsed.items.length === 0) return;
-    const formData = new FormData();
-    formData.set("title", title.trim());
-    formData.set("items", JSON.stringify(parsed.items));
-    startTransition(() => createFromMarkdown(formData));
-  };
+    e.preventDefault()
+    if (!title.trim() || parsed.items.length === 0) return
+    const formData = new FormData()
+    formData.set("title", title.trim())
+    formData.set("items", JSON.stringify(parsed.items))
+    startTransition(() => createFromMarkdown(formData))
+  }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
@@ -714,8 +714,8 @@ function MarkdownForm({
       <input
         value={title}
         onChange={(e) => {
-          setTitle(e.target.value);
-          titleManualRef.current = true;
+          setTitle(e.target.value)
+          titleManualRef.current = true
         }}
         type="text"
         placeholder="Título do checklist..."
@@ -731,7 +731,7 @@ function MarkdownForm({
         disabled={parsed.items.length === 0 || !title.trim()}
       />
     </form>
-  );
+  )
 }
 
 function SubmitButton({
@@ -740,10 +740,10 @@ function SubmitButton({
   icon,
   disabled,
 }: {
-  isPending: boolean;
-  label: string;
-  icon: React.ReactNode;
-  disabled?: boolean;
+  isPending: boolean
+  label: string
+  icon: React.ReactNode
+  disabled?: boolean
 }) {
   return (
     <button
@@ -761,5 +761,5 @@ function SubmitButton({
         </>
       )}
     </button>
-  );
+  )
 }
