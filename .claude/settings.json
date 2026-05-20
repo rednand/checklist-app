@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(GROQ_API_KEY=test-key npx vitest run)",
+      "Bash(Get-ChildItem -Path \"c:\\\\english-notes-saas\" -Recurse -Directory)",
+      "Bash(Select-Object -ExpandProperty FullName)",
+      "PowerShell(head -50)",
+      "Bash(Get-Content \"C:\\\\Users\\\\RENAN~1.MOD\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\c--checklist-app\\\\8a8f16df-2d62-4e6b-8e7a-95ab23bae1fa\\\\tasks\\\\bw64vpd1p.output\" -Wait -Tail 50)",
+      "Bash(Get-ChildItem -Path \"c:\\\\english-notes-saas\\\\supabase\\\\\" -Recurse -File | Select-Object FullName)",
+      "Bash(xargs grep -l \"interface\\\\|type.*=\")",
+      "Bash(Get-ChildItem -Path \"c:\\\\english-notes-saas\\\\app\" -Directory -Recurse)",
+      "Bash(Sort-Object)",
+      "Read(//c/english-notes-saas/app/\\(app\\)/lessons/**)"
+    ]
+  }
+}
