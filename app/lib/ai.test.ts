@@ -31,7 +31,7 @@ describe('generateWithFallback', () => {
     await generateWithFallback({ system: 'sys', user: 'usr', temperature: 0.3, maxTokens: 500 })
 
     expect(mockCreate).toHaveBeenCalledWith({
-      model: 'llama-3.3-70b-versatile',
+      model: 'openai/gpt-oss-120b',
       messages: [
         { role: 'system', content: 'sys' },
         { role: 'user', content: 'usr' },
@@ -49,5 +49,34 @@ describe('generateWithFallback', () => {
     const result = await generateWithFallback({ system: '', user: '' })
 
     expect(result).toBe('')
+  })
+
+  it('falls back to the next model when a call fails', async () => {
+    mockCreate
+      .mockRejectedValueOnce(new Error('model_not_found'))
+      .mockResolvedValueOnce({
+        choices: [{ message: { content: 'from fallback model' } }],
+      })
+
+    const result = await generateWithFallback({ system: 'sys', user: 'usr' })
+
+    expect(result).toBe('from fallback model')
+    expect(mockCreate).toHaveBeenCalledTimes(2)
+    expect(mockCreate.mock.calls[0][0].model).toBe('openai/gpt-oss-120b')
+    expect(mockCreate.mock.calls[1][0].model).toBe('openai/gpt-oss-20b')
+  })
+
+  it('throws the last error when every model fails', async () => {
+    const finalError = new Error('all models exhausted')
+    mockCreate
+      .mockRejectedValueOnce(new Error('error 1'))
+      .mockRejectedValueOnce(new Error('error 2'))
+      .mockRejectedValueOnce(new Error('error 3'))
+      .mockRejectedValueOnce(finalError)
+
+    await expect(generateWithFallback({ system: 'sys', user: 'usr' })).rejects.toThrow(
+      'all models exhausted'
+    )
+    expect(mockCreate).toHaveBeenCalledTimes(4)
   })
 })
